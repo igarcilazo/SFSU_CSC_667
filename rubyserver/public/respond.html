@@ -1,0 +1,77 @@
+<html>
+	<body>
+	<h2>HTTP Responses</h2>
+<textarea rows="50" cols="150">
+Format
+* General form of a response
+	HTTP_VERSION STATUS_CODE REASON_PHRASE
+	HTTP_HEADERS
+	BODY
+	* HTTP_VERSION is the current HTTP version (ex. HTTP/1.1)
+	* STATUS_CODE is a code defined in the protocol that communicates the
+	status of the response
+	* REASON_PHRASE is the descriptive text corresponding to the status code
+	* BODY is the requested resource content
+
+
+HTTP Responses
+Status Codes - 1XX Informational
+* 100 Continue
+* 101 Switching Protocols
+* 102 Processing
+
+HTTP Responses
+Status Codes - 2XX Success
+* 200 OK
+* Standard response for HTTP requests.
+* GET: response contains an entity corresponding to the requested resource
+* POST: response contains an entity describing or containing the result of an action
+* 201 Created
+* The request has been fulfilled and a new resource has been created
+* 202 Accepted
+* The request has been accepted for processing, but the processing has not completed
+* 204 No Content
+* The server successfully processed the request, but is not returning any content
+
+HTTP Responses
+Status Codes - 3XX Redirection
+* 301 Moved Permanently
+* This and all future requests for the specified resource should be
+directed to the given URI (specified in a header)
+* 304 Not Modified
+* Indicates that the resource has not been modified since the version
+specified in the request (via header)
+
+
+HTTP Responses
+Status Codes - 4XX Client Error
+* 400 Bad Request
+* The request cannot be fulfilled due to bad syntax
+* 401 Unauthorized
+* Authentication is required and has failed or not been provided
+* 403 Forbidden
+* The request was valid, but the server is refusing to respond to it, and authenticating will make no difference (i.e. authenticated,
+but permissions not granted to access resource)
+* 404 Not Found
+* The requested resource could not be found
+* 418 I’m a teapot
+* Not official, IETF April Fools Joke 1998
+* 420 Enhance Your Calm
+* Not official, returned by Twitter when the client is being rate limited
+
+HTTP Responses
+Status Codes - 5XX Server Error
+* 500 Internal Server Error
+* A generic error message, given when no more specific message is suitable
+* 501 Not Implemented
+* The server either does not recognize the request method, or it lacks the ability to fulfill the
+request
+* 502 Bad Gateway
+* The server was acting as a gateway or proxy and received an invalid response from the
+upstream server
+* 503 Service Unavailable
+* The server is current unavailable (because it is overloaded or down for maintenance).
+Generally, this is a temporary state
+</textarea>
+	</body>
+</html>
