@@ -1,12 +1,13 @@
 require 'socket' # allows use of TCPServer & TCPSocket classesH
 
-#DEFAULT_PORT = 56792
+#DEFAULT_PORT = 8999
 
 class WebServer
   attr_reader :options, :socket
   
   def initialize(options={})
     @options = options
+	
     #Open webserver configuration and mime types
     @httpd = HttpdConf.new(File.open("config/httpd.conf", "r").read())
     #@mimefile = File.open("config/mime.types", "r")
@@ -15,16 +16,19 @@ class WebServer
   def start
     @portnumber = @httpd.port
     loop do
+	  puts "\n-----------------------------------------------"
       puts "Opening server socket to listen for connections"
       @socket = server.accept # open socket, wait until client connects
-      Thread.new(@socket) do |newsocket|#Thread for every session
-      puts "Received connection"
-      Request.new(newsocket).parse
-      newsocket.puts Response.new.to_s
       
-      newsocket.close # terminate connection
+	  Thread.new(@socket) do |newsocket| #Thread for every session
+        puts "Received connection\n"
+        Request.new(newsocket).parse
+        newsocket.puts Response.new.to_s
+        
+        newsocket.close # terminate connection
+      end
+	  
     end
-  end
   end
   
   # TCPServer represents a TCP/IP server socket
@@ -70,7 +74,7 @@ class Response # generates generic OK response to send to the client
   
   def initialize
     @body            = "body"
-    @version         = "1.1"
+    @version         = "HTTP/1.1"
     @response_code   = "200"
     @response_phrase = "OK"
     @headers         ={"Content-Type" => "text/plain",
@@ -79,7 +83,7 @@ class Response # generates generic OK response to send to the client
   end
   
   def to_s
-    return "#{@version} #{@response_code} #{@response_phrase}\r\n" +
+    return "#\r\n{@version} #{@response_code} #{@response_phrase}\r\n" +
            "Content-Type: #{@headers["Content-Type"]}\r\n" +
            "Content-Length: #{@headers["Content-Length"]}\r\n" +
            "Connection: #{@headers["Connection"]}\r\n" +
