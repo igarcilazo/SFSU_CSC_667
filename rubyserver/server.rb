@@ -90,7 +90,7 @@ end
 
 class HttpdConf 
     def initialize(httpdConfig)
-      @file = httpdConfig.split("\n")
+      @config = httpdConfig.split("\n")
       @httpdhash = {}
     end
     def root
@@ -109,14 +109,14 @@ class HttpdConf
       @httpdhash[:errorlog] = find("ErrorLogFile")
     end
     def find(resource)
-      value = ""
-      @file.each do |line|
+      keyword = ""
+      @config.each do |line|
         if line.include? resource
-          value = line.split(" ")
+          keyword = line.split(" ")
           break
         end
       end
-      value = value[1]
+      keyword = keyword[1]
     end
   end
 
