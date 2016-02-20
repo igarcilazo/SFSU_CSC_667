@@ -15,12 +15,14 @@ class WebServer
   
   def start
     @portnumber = @httpd.port
+
     loop do
 	  puts "\n-----------------------------------------------"
       puts "Opening server socket to listen for connections"
       @socket = server.accept # open socket, wait until client connects
-      Thread.new(@socket) do |newsocket| #Thread for every session
-        puts "Received connection\n\n"
+      
+	  Thread.new(@socket) do |newsocket| # thread for every session
+        puts "Received connection\n"
         Request.new(newsocket).parse
         newsocket.puts Response.new.to_s
         
@@ -55,12 +57,16 @@ class Request
     @uri     = fullpath[1]
     @query   = query
     @version = fullpath[2]
-    @headers = ""
-    while (line = @session.gets) != "\r\n"
-      @headers << line ### HEADERS SHOULD BE HASH (FIX LATER) ###
+    @headers = Hash.new
+    
+    while (header = @session.gets) != "\r\n"
+      key, value = header.split(": ")
+      @headers.store(key, value)
     end
     
-    puts headers
+    @headers.each do |key, value|
+      puts "#{key}: #{value}"
+    end
     print "\r\n" # blank line
     puts "#{@body}"
     
@@ -81,12 +87,15 @@ class Response # generates generic OK response to send to the client
   end
   
   def to_s
-    return "\r\n#{@version} #{@response_code} #{@response_phrase}\r\n" +
-           "Content-Type: #{@headers["Content-Type"]}\r\n" +
-           "Content-Length: #{@headers["Content-Length"]}\r\n" +
-           "Connection: #{@headers["Connection"]}\r\n" +
-           "\r\n" +
-           "#{@body}\r\n"
+    s = "\r\n#{@version} #{@response_code} #{@response_phrase}\r\n"
+
+    @headers.each do |key, value|
+      s += "#{key}: #{value}\r\n"
+    end
+    s += "\r\n" # blank line
+    s += "#{@body}\r\n"
+    
+    return s
   end
 end
 
