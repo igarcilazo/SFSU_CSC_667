@@ -8,6 +8,7 @@ class WebServer
   
   def initialize(options={})
     @options = options
+	
     #Open webserver configuration and mime types
     @httpd = HttpdConf.new(File.open("config/httpd.conf", "r").read())
     #@mimefile = File.open("config/mime.types", "r")
@@ -21,7 +22,7 @@ class WebServer
       puts "Opening server socket to listen for connections"
       @socket = server.accept # open socket, wait until client connects
       
-	  Thread.new(@socket) do |newsocket| # thread for every session
+	  Thread.new(@socket) do |newsocket| #Thread for every session
         puts "Received connection\n"
         Request.new(newsocket).parse
         newsocket.puts Response.new.to_s
