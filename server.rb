@@ -1,7 +1,6 @@
 require 'socket' # allows use of TCPServer & TCPSocket classesH
-require 'thread'
 
-#DEFAULT_PORT = 8999
+#DEFAULT_PORT = 56792
 
 class WebServer
   attr_reader :options, :socket
@@ -15,20 +14,17 @@ class WebServer
   
   def start
     @portnumber = @httpd.port
-
     loop do
-	  puts "\n-----------------------------------------------"
       puts "Opening server socket to listen for connections"
       @socket = server.accept # open socket, wait until client connects
+      Thread.new(@socket) do |newsocket|#Thread for every session
+      puts "Received connection"
+      Request.new(newsocket).parse
+      newsocket.puts Response.new.to_s
       
-	  Thread.new(@socket) do |newsocket| # thread for every session
-        puts "Received connection\n"
-        Request.new(newsocket).parse
-        newsocket.puts Response.new.to_s
-        
-        newsocket.close # terminate connection
-      end
+      newsocket.close # terminate connection
     end
+  end
   end
   
   # TCPServer represents a TCP/IP server socket
@@ -57,16 +53,12 @@ class Request
     @uri     = fullpath[1]
     @query   = query
     @version = fullpath[2]
-    @headers = Hash.new
-    
-    while (header = @session.gets) != "\r\n"
-      key, value = header.split(": ")
-      @headers.store(key, value)
+    @headers = ""
+    while (line = @session.gets) != "\r\n"
+      @headers << line ### HEADERS SHOULD BE HASH (FIX LATER) ###
     end
     
-    @headers.each do |key, value|
-      puts "#{key}: #{value}"
-    end
+    puts headers
     print "\r\n" # blank line
     puts "#{@body}"
     
@@ -78,7 +70,7 @@ class Response # generates generic OK response to send to the client
   
   def initialize
     @body            = "body"
-    @version         = "HTTP/1.1"
+    @version         = "1.1"
     @response_code   = "200"
     @response_phrase = "OK"
     @headers         ={"Content-Type" => "text/plain",
@@ -87,21 +79,18 @@ class Response # generates generic OK response to send to the client
   end
   
   def to_s
-    s = "\r\n#{@version} #{@response_code} #{@response_phrase}\r\n"
-
-    @headers.each do |key, value|
-      s += "#{key}: #{value}\r\n"
-    end
-    s += "\r\n" # blank line
-    s += "#{@body}\r\n"
-    
-    return s
+    return "#{@version} #{@response_code} #{@response_phrase}\r\n" +
+           "Content-Type: #{@headers["Content-Type"]}\r\n" +
+           "Content-Length: #{@headers["Content-Length"]}\r\n" +
+           "Connection: #{@headers["Connection"]}\r\n" +
+           "\r\n" +
+           "#{@body}\r\n"
   end
 end
 
 class HttpdConf 
     def initialize(httpdConfig)
-      @config = httpdConfig.split("\n")
+      @file = httpdConfig.split("\n")
       @httpdhash = {}
     end
     def root
@@ -120,14 +109,14 @@ class HttpdConf
       @httpdhash[:errorlog] = find("ErrorLogFile")
     end
     def find(resource)
-      keyword = ""
-      @config.each do |line|
+      value = ""
+      @file.each do |line|
         if line.include? resource
-          keyword = line.split(" ")
+          value = line.split(" ")
           break
         end
       end
-      keyword = keyword[1]
+      value = value[1]
     end
   end
 
