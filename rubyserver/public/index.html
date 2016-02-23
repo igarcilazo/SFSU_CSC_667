@@ -1,9 +1,25 @@
+<!DOCTYPE html>
 <html>
   <head>
     <title>667 Server Project</title>
   </head>
-  <body>
+  <body align="center">
   Welcome to our Webserver
-  
+    <div>
+        <fieldset>
+            <form method="post" action="http://localhost:56790">
+                <p>Enter some text for POST:<input type="text" name="post_value"></p>
+                <p>Now some more:<input type="text" name="post_value"></p>
+                <input type="submit">
+            </form>
+        </fieldset>
+        <fieldset>
+            <form method="get" action="http://localhost:56790">
+                <p>Enter some text for GET:<input type="text" name="post_value"></p>
+                <p>Now some more:<input type="text" name="post_value"></p>
+                <input type="submit">
+            </form>
+        </fieldset>
+    </div>
   </body>
 </html>
